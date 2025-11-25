@@ -141,7 +141,7 @@ function useStaggeredMount(count: number, delay = 50) {
   const [mounted, setMounted] = useState<number[]>([]);
 
   useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
+    const timers: Array<ReturnType<typeof setTimeout>> = [];
     for (let i = 0; i < count; i++) {
       timers.push(
         setTimeout(() => {
@@ -154,6 +154,7 @@ function useStaggeredMount(count: number, delay = 50) {
 
   return mounted;
 }
+
 
 /** ------------------------------------------------------------
  * Micro router synced to URL hash
@@ -975,9 +976,10 @@ export default function Shell({ user, onLogout }: DashboardProps) {
               </div>
             )}
           </main>
-        </div>
-        {stop()}
+          </div>
+        {(stop(), null)}
       </div>
+
 
       <style jsx global>{`
         @keyframes shimmer {

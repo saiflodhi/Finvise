@@ -46,7 +46,7 @@ const signupSchema = loginSchema.extend({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 type SignupFormData = z.infer<typeof signupSchema>;
-type FormData = LoginFormData | SignupFormData;
+type FormData = SignupFormData;
 
 /* ============================================================================
  * CONSTANTS
@@ -418,7 +418,9 @@ function useAuthForm(
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormData>({
-    resolver: zodResolver(mode === "login" ? loginSchema : signupSchema),
+    resolver: zodResolver(
+      mode === "login" ? loginSchema : signupSchema
+    ) as any,
     mode: "onBlur",
   });
 
@@ -514,8 +516,8 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
                   <FormField
                     label="Business Name"
                     required
-                    error={errors.businessName?.message}
-                  >
+                    error={!isLogin ? errors.businessName?.message : undefined}
+                    >
                     <InputWrapper leftIcon={<Building2 className="w-5 h-5" />}>
                       <input
                         {...register("businessName")}

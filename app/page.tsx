@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Homepage from "./Homepage";
 import LoginPage from "./Login";
 import Dashboard from "./Dashboard";
-import Invoices from "./Invoices";
 
 // Define types
 export interface User {
@@ -13,21 +12,19 @@ export interface User {
   email: string;
   businessName?: string;
   phone?: string;
-  isAuthenticated?: boolean; // Added authentication flag
+  isAuthenticated?: boolean;
 }
 
 // Authentication service mock (replace with actual API calls)
 class AuthService {
-  private static readonly AUTH_KEY = 'invoiceflow_auth';
-  private static readonly SESSION_KEY = 'invoiceflow_session';
-  
+  private static readonly AUTH_KEY = "invoiceflow_auth";
+  private static readonly SESSION_KEY = "invoiceflow_session";
+
   static isAuthenticated(): boolean {
-    if (typeof window === 'undefined') return false;
-    
+    if (typeof window === "undefined") return false;
+
     const session = sessionStorage.getItem(this.SESSION_KEY);
-    const auth = localStorage.getItem(this.AUTH_KEY);
-    
-    // Check if we have valid session data
+
     if (session) {
       try {
         const sessionData = JSON.parse(session);
@@ -37,42 +34,42 @@ class AuthService {
           return true;
         }
       } catch (e) {
-        console.error('Invalid session data');
+        console.error("Invalid session data");
       }
     }
-    
+
     return false;
   }
-  
+
   static saveSession(user: User): void {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     const sessionData = {
       user,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
-    
+
     sessionStorage.setItem(this.SESSION_KEY, JSON.stringify(sessionData));
-    localStorage.setItem(this.AUTH_KEY, 'true');
+    localStorage.setItem(this.AUTH_KEY, "true");
   }
-  
+
   static clearSession(): void {
-    if (typeof window === 'undefined') return;
-    
+    if (typeof window === "undefined") return;
+
     sessionStorage.removeItem(this.SESSION_KEY);
     localStorage.removeItem(this.AUTH_KEY);
   }
-  
+
   static getUser(): User | null {
-    if (typeof window === 'undefined') return null;
-    
+    if (typeof window === "undefined") return null;
+
     const session = sessionStorage.getItem(this.SESSION_KEY);
     if (session) {
       try {
         const sessionData = JSON.parse(session);
         return sessionData.user;
       } catch (e) {
-        console.error('Failed to parse user session');
+        console.error("Failed to parse user session");
       }
     }
     return null;
@@ -80,11 +77,11 @@ class AuthService {
 }
 
 export default function Page() {
-  // Initialize state based on authentication status
   const [isLoading, setIsLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<'home' | 'login' | 'dashboard'>('home');
+  const [currentView, setCurrentView] = useState<"home" | "login" | "dashboard">(
+    "home"
+  );
   const [user, setUser] = useState<User | null>(null);
-  const [activePage, setActivePage] = useState<string>('dashboard');
 
   // Check authentication on mount
   useEffect(() => {
@@ -93,86 +90,60 @@ export default function Page() {
         const savedUser = AuthService.getUser();
         if (savedUser) {
           setUser(savedUser);
-          setCurrentView('dashboard');
+          setCurrentView("dashboard");
         } else {
           // Session corrupted, clear and redirect to home
           AuthService.clearSession();
-          setCurrentView('home');
+          setCurrentView("home");
         }
       } else {
-        setCurrentView('home');
+        setCurrentView("home");
       }
       setIsLoading(false);
     };
 
-    // Add slight delay to prevent flash of wrong content
+    // Slight delay to avoid flashing wrong content
     const timer = setTimeout(checkAuth, 100);
     return () => clearTimeout(timer);
   }, []);
 
   // Handle successful login
   const handleLogin = (userData: User) => {
-    const authenticatedUser = {
+    const authenticatedUser: User = {
       ...userData,
-      isAuthenticated: true
+      isAuthenticated: true,
     };
-    
-    // Save session
+
     AuthService.saveSession(authenticatedUser);
-    
     setUser(authenticatedUser);
-    setCurrentView('dashboard');
-    setActivePage('dashboard');
+    setCurrentView("dashboard");
   };
 
   // Handle logout with session cleanup
   const handleLogout = () => {
-    // Clear all session data
     AuthService.clearSession();
-    
-    // Reset state
     setUser(null);
-    setCurrentView('home');
-    setActivePage('dashboard');
+    setCurrentView("home");
   };
 
   // Navigation handlers
   const handleNavigateToLogin = () => {
-    // Don't allow navigation to login if already authenticated
     if (!AuthService.isAuthenticated()) {
-      setCurrentView('login');
+      setCurrentView("login");
     } else {
-      setCurrentView('dashboard');
+      setCurrentView("dashboard");
     }
   };
 
   const handleBackToHome = () => {
-    // If authenticated, redirect to dashboard instead of home
     if (AuthService.isAuthenticated()) {
-      setCurrentView('dashboard');
+      setCurrentView("dashboard");
     } else {
-      setCurrentView('home');
+      setCurrentView("home");
     }
   };
 
-  const handlePageChange = (pageId: string) => {
-    // Only allow page changes if authenticated
-    if (AuthService.isAuthenticated()) {
-      setActivePage(pageId);
-    }
-  };
-
-  // Protected route component wrapper
-  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    if (!AuthService.isAuthenticated() || !user) {
-      // Redirect to login if not authenticated
-      setCurrentView('login');
-      return null;
-    }
-    return <>{children}</>;
-  };
-
-  // Show loading state
+  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -184,38 +155,27 @@ export default function Page() {
     );
   }
 
-  // Render Login Page
-  if (currentView === 'login') {
+  // Login page
+  if (currentView === "login") {
     return <LoginPage onLogin={handleLogin} onBack={handleBackToHome} />;
   }
 
-  // Render Homepage (only if not authenticated)
-  if (currentView === 'home' && !AuthService.isAuthenticated()) {
+  // Homepage (only if not authenticated)
+  if (currentView === "home" && !AuthService.isAuthenticated()) {
     return <Homepage onNavigateToLogin={handleNavigateToLogin} />;
   }
 
-  // Render Dashboard (protected)
-  if (currentView === 'dashboard' && user) {
-    return (
-      <ProtectedRoute>
-        <Dashboard 
-          user={user} 
-          onLogout={handleLogout}
-          activePage={activePage}
-          onPageChange={handlePageChange}
-        >
-          {activePage === 'invoices' && <Invoices />}
-        </Dashboard>
-      </ProtectedRoute>
-    );
+  // Dashboard (requires user + auth)
+  if (currentView === "dashboard" && user) {
+    return <Dashboard user={user} onLogout={handleLogout} />;
   }
 
-  // Default fallback - show homepage if not authenticated
+  // Default fallback: show homepage if not authenticated
   if (!AuthService.isAuthenticated()) {
     return <Homepage onNavigateToLogin={handleNavigateToLogin} />;
   }
 
-  // If authenticated but somehow no view is selected, redirect to dashboard
+  // If authenticated but no view selected, show a simple fallback
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <p className="text-slate-600">Redirecting...</p>

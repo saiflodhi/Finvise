@@ -85,8 +85,8 @@ interface CollaboratorCursor {
 /** ============================================================================
  * Column DSL with sorting & filtering
  * ============================================================================ */
-type ColDef<K extends keyof Invoice | string = keyof Invoice> = {
-  id: string & K;
+type ColDef = {
+  id: keyof Invoice | "actions";
   header: string;
   width?: string;
   sortable?: boolean;
@@ -133,8 +133,14 @@ const columns: ReadonlyArray<ColDef> = [
   },
   { id: "status", header: "Status", width: "10rem" },
   { id: "ftaStatus", header: "FTA Status", width: "12rem" },
-  { id: "actions", header: "Actions", width: "10rem", cell: (r) => <RowActions row={r} /> },
+  {
+    id: "actions",
+    header: "Actions",
+    width: "10rem",
+    cell: (r) => <RowActions row={r} />,
+  },
 ] as const;
+
 
 /** ============================================================================
  * Helpers

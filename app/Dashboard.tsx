@@ -101,7 +101,7 @@ const storage = {
 function useSpring(target: number, config = { tension: 170, friction: 26 }) {
   const [current, setCurrent] = useState(target);
   const velocity = useRef(0);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     let lastTime = performance.now();

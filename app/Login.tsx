@@ -72,12 +72,14 @@ const STATS = [
 
 const STYLE_CLASSES = {
   input: {
-    base: "w-full py-3.5 rounded-xl outline-none transition-all duration-300 bg-white text-slate-800 placeholder:text-slate-400 border-2 shadow-sm",
-    focus: "focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:shadow-lg focus:shadow-teal-500/5",
+    base:
+      "w-full py-3.5 rounded-xl outline-none transition-all duration-300 bg-white text-slate-900 placeholder:text-slate-400 border border-slate-300",
+    focus:
+      "focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20",
     withIcon: "pl-12 pr-4",
     withRightIcon: "pl-12 pr-12",
     error: "border-red-400 focus:border-red-500 focus:ring-red-500/10",
-    normal: "border-slate-200 hover:border-slate-300",
+    normal: "border-slate-300 hover:border-slate-400",
   },
   label: "block text-sm font-semibold text-slate-700 mb-2",
   error: "mt-2 text-sm text-red-600 font-medium",
@@ -88,10 +90,16 @@ const STYLE_CLASSES = {
  * ============================================================================ */
 
 class AuthService {
+  // Only allow the demo credentials
   static async login(data: LoginFormData): Promise<{ name: string; email: string }> {
     await new Promise((resolve) => setTimeout(resolve, FORM_CONFIG.simulatedApiDelay));
+
+    if (data.email !== "a@gmail.com" || data.password !== "Asdf@1234") {
+      throw new Error("Invalid email or password. Use a@gmail.com / Asdf@1234");
+    }
+
     return {
-      name: data.email.split("@")[0],
+      name: "Demo User",
       email: data.email,
     };
   }
@@ -140,9 +148,9 @@ function AnimatedCTA({
     "group relative inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0",
     "focus:outline-none focus-visible:ring-4 focus-visible:ring-teal-500/30",
     variant === "primary" &&
-      "bg-gradient-to-r from-teal-600 to-cyan-600 text-white hover:from-teal-700 hover:to-cyan-700",
+      "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/25",
     variant === "secondary" &&
-      "bg-white text-slate-700 border-2 border-slate-200 hover:border-teal-500 hover:text-teal-700",
+      "bg-white text-slate-700 border-2 border-slate-200 hover:border-emerald-500 hover:text-emerald-700",
     disabled && "opacity-60 cursor-not-allowed transform-none",
     className
   );
@@ -184,7 +192,7 @@ function InputWrapper({ children, leftIcon }: InputWrapperProps) {
     <div className="relative group">
       {leftIcon && (
         <span
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-teal-600 transition-colors duration-300"
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors duration-300"
           aria-hidden="true"
         >
           {leftIcon}
@@ -248,7 +256,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-teal-600 transition-colors duration-300"
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600 transition-colors duration-300"
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -286,65 +294,40 @@ function GlobalError({ message }: GlobalErrorProps) {
 
 interface HeaderProps {
   onMenuClick?: () => void;
+  onBack?: () => void;
 }
 
-function Header({ onMenuClick }: HeaderProps) {
+function Header({ onMenuClick, onBack }: HeaderProps) {
   return (
-    <header className="sticky top-0 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50 shadow-sm">
+    <header className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-slate-200 z-50">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Primary">
         <div className="flex justify-between items-center h-20">
           <a
             href="/"
-            className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-lg p-1"
+            className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg p-1"
           >
             <div className="relative">
               <img
                 src="/Finvise.png"
-                alt="InvoiceFlow logo"
+                alt="Finvise logo"
                 className="relative object-contain w-28 h-21 sm:w-36 sm:h-25"
               />
             </div>
           </a>
 
-          <div className="hidden md:flex items-center gap-8">
-            <a
-              href="#features"
-              className="text-slate-600 hover:text-teal-600 transition-colors font-medium relative group"
-            >
-              Features
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a
-              href="#pricing"
-              className="text-slate-600 hover:text-teal-600 transition-colors font-medium relative group"
-            >
-              Pricing
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a
-              href="#resources"
-              className="text-slate-600 hover:text-teal-600 transition-colors font-medium relative group"
-            >
-              Resources
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-teal-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-          </div>
-
           <div className="hidden md:flex items-center gap-4">
-            <AnimatedCTA variant="secondary">
-              Login
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </AnimatedCTA>
-            <AnimatedCTA href="#start" variant="primary">
-              Start Free Trial
-              <Sparkles className="w-4 h-4" />
-            </AnimatedCTA>
+            {onBack && (
+              <AnimatedCTA variant="secondary" onClick={onBack}>
+                Back to Home
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </AnimatedCTA>
+            )}
           </div>
 
           <button
             type="button"
             aria-label="Open menu"
-            className="md:hidden p-2 rounded-lg hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
             onClick={onMenuClick}
           >
             <Menu className="w-6 h-6 text-slate-700" />
@@ -360,26 +343,24 @@ function Header({ onMenuClick }: HeaderProps) {
  * ============================================================================ */
 function BrandingSection() {
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 p-8 lg:p-12 border border-teal-100 shadow-xl">
+    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-green-50/40 to-slate-50 p-8 lg:p-12 border border-slate-200 shadow-2xl shadow-slate-200/50">
       {/* Decorative Background Blurs */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-teal-200/30 to-cyan-200/30 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-blue-200/30 to-purple-200/30 rounded-full blur-3xl" />
 
       {/* Main Content */}
       <div className="relative z-10 max-w-4xl mx-auto">
-        {/* Removed logo container — empty flex now removed for cleaner DOM */}
-        
         <h1 className="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 bg-clip-text text-transparent">
-          Welcome to InvoiceFlow
+          Welcome to Finvise
         </h1>
 
-        <p className="text-slate-600 text-lg mb-10 leading-relaxed">
-          UAE's leading e-invoicing compliance platform. Join 500+ businesses already
-          streamlining their invoice processes with cutting-edge technology.
+        <p className="text-slate-600 text-lg mb-8 leading-relaxed">
+          UAE’s e-invoicing bridge between your ERP and accredited ASPs. Secure, compliant,
+          and built for finance teams that can’t afford downtime.
         </p>
 
         {/* Feature Bullets */}
-        <div className="space-y-4">
+        <div className="space-y-4 mb-8">
           {FEATURE_BULLETS.map((bullet, index) => (
             <div
               key={bullet.text}
@@ -388,16 +369,34 @@ function BrandingSection() {
             >
               <div
                 className={cn(
-                  'w-12 h-12 rounded-xl bg-gradient-to-br shadow-lg flex items-center justify-center',
-                  'transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300',
+                  "w-12 h-12 rounded-xl bg-gradient-to-br shadow-lg flex items-center justify-center",
+                  "transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300",
                   bullet.color
                 )}
               >
                 <bullet.icon className="w-6 h-6 text-white" aria-hidden="true" />
               </div>
-              <span className="text-lg font-semibold text-slate-700 group-hover:text-teal-700 transition-colors">
+              <span className="text-lg font-semibold text-slate-700 group-hover:text-emerald-700 transition-colors">
                 {bullet.text}
               </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-3 gap-4">
+          {STATS.map((stat) => (
+            <div
+              key={stat.label}
+              className="bg-white/80 border border-slate-200 rounded-2xl px-4 py-3 shadow-sm flex flex-col items-start"
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <stat.icon className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  {stat.label}
+                </span>
+              </div>
+              <div className="text-lg font-bold text-slate-900">{stat.value}</div>
             </div>
           ))}
         </div>
@@ -470,7 +469,7 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
   const isLogin = mode === "login";
   const title = isLogin ? "Sign In" : "Create Account";
   const subtitle = isLogin
-    ? "Welcome back! Please enter your details."
+    ? "Use demo credentials to explore the dashboard."
     : "Get started with your 14-day free trial.";
 
   const toggleMode = () => {
@@ -479,34 +478,46 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50/30">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-48 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-cyan-200/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-200/10 rounded-full blur-3xl animate-pulse-slow"></div>
-      </div>
-
-      <Header onMenuClick={() => console.log("Mobile menu not implemented")} />
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <Header
+        onMenuClick={() => console.log("Mobile menu not implemented")}
+        onBack={onBack}
+      />
 
       <main className="relative flex items-center justify-center p-4 py-12">
         <div className="w-full max-w-7xl grid lg:grid-cols-2 gap-8 items-stretch">
           <BrandingSection />
 
-          <div className="relative bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-3xl shadow-2xl p-8 md:p-12 animate-fadeIn">
+          <div className="relative bg-white border border-slate-200 rounded-3xl shadow-xl shadow-slate-200/50 p-8 md:p-12 animate-fadeIn">
             {/* Decorative corner accents */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-teal-500/10 to-transparent rounded-bl-full"></div>
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-cyan-500/10 to-transparent rounded-tr-full"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-bl-full"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-teal-500/10 to-transparent rounded-tr-full"></div>
 
             <div className="relative z-10">
-              <div className="mb-8">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1.5 h-8 bg-gradient-to-b from-teal-500 to-cyan-500 rounded-full"></div>
-                  <h2 className="text-3xl md:text-4xl font-bold text-slate-800">
-                    {title}
-                  </h2>
+              <div className="mb-8 flex items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-1.5 h-8 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
+                    <h2 className="text-3xl md:text-4xl font-bold text-slate-800">
+                      {title}
+                    </h2>
+                  </div>
+                  <p className="text-slate-600 text-lg">{subtitle}</p>
+                  {isLogin && (
+                    <p className="mt-2 text-sm text-slate-500">
+                      <span className="font-semibold">Email:</span> a@gmail.com &nbsp;•&nbsp;
+                      <span className="font-semibold">Password:</span> Asdf@1234
+                    </p>
+                  )}
                 </div>
-                <p className="text-slate-600 text-lg">{subtitle}</p>
+
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="hidden md:inline-flex text-sm text-slate-500 hover:text-slate-800 underline-offset-4 hover:underline"
+                >
+                  Back to home
+                </button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6" noValidate>
@@ -517,7 +528,7 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
                     label="Business Name"
                     required
                     error={!isLogin ? errors.businessName?.message : undefined}
-                    >
+                  >
                     <InputWrapper leftIcon={<Building2 className="w-5 h-5" />}>
                       <input
                         {...register("businessName")}
@@ -542,7 +553,7 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
                     <input
                       {...register("email")}
                       type="email"
-                      placeholder="you@company.com"
+                      placeholder="a@gmail.com"
                       className={cn(
                         STYLE_CLASSES.input.base,
                         STYLE_CLASSES.input.focus,
@@ -582,7 +593,7 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
                 <FormField label="Password" required error={errors.password?.message}>
                   <PasswordInput
                     {...register("password")}
-                    placeholder="Enter your password"
+                    placeholder="Asdf@1234"
                     autoComplete={isLogin ? "current-password" : "new-password"}
                     error={errors.password?.message}
                   />
@@ -593,7 +604,7 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
                     <label className="flex items-center gap-2 cursor-pointer group">
                       <input
                         type="checkbox"
-                        className="w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500 focus:ring-2 transition-all"
+                        className="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 focus:ring-2 transition-all"
                         aria-label="Remember me"
                       />
                       <span className="text-sm text-slate-600 group-hover:text-slate-800 transition-colors">
@@ -602,7 +613,7 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
                     </label>
                     <a
                       href="#forgot-password"
-                      className="text-sm text-teal-600 hover:text-teal-700 font-semibold hover:underline transition-colors"
+                      className="text-sm text-emerald-600 hover:text-emerald-700 font-semibold hover:underline transition-colors"
                     >
                       Forgot password?
                     </a>
@@ -644,7 +655,7 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
                     className="text-slate-600 hover:text-slate-800 transition-colors font-medium"
                   >
                     {isLogin ? "Don't have an account? " : "Already have an account? "}
-                    <span className="text-teal-600 font-bold hover:text-teal-700 hover:underline">
+                    <span className="text-emerald-600 font-bold hover:text-emerald-700 hover:underline">
                       {isLogin ? "Sign Up" : "Sign In"}
                     </span>
                   </button>
@@ -659,7 +670,10 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
                     </div>
                     <div className="text-sm">
                       <strong className="font-bold">14-day free trial</strong>
-                      <span className="text-emerald-700"> • No credit card required • Cancel anytime</span>
+                      <span className="text-emerald-700">
+                        {" "}
+                        • No credit card required • Cancel anytime
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -703,7 +717,8 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
         }
 
         @keyframes shake {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateX(0);
           }
           25% {
@@ -711,24 +726,6 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
           }
           75% {
             transform: translateX(4px);
-          }
-        }
-
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-20px);
-          }
-        }
-
-        @keyframes pulse-slow {
-          0%, 100% {
-            opacity: 0.5;
-          }
-          50% {
-            opacity: 0.8;
           }
         }
 
@@ -746,14 +743,6 @@ export default function LoginPage({ onLogin, onBack }: LoginPageProps) {
 
         .animate-shake {
           animation: shake 0.3s ease-in-out;
-        }
-
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-
-        .animate-pulse-slow {
-          animation: pulse-slow 4s ease-in-out infinite;
         }
       `}</style>
     </div>
